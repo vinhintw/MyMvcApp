@@ -1,7 +1,18 @@
+using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
+using MyMvcApp.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+DotNetEnv.Env.Load();
+string DB_URL =
+    Environment.GetEnvironmentVariable("DB_URL")
+    ?? throw new InvalidOperationException("Connection string not found.");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Cấu hình EF Core
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(DB_URL));
 
 var app = builder.Build();
 
@@ -20,8 +31,6 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
